@@ -120,6 +120,7 @@ polynomial_formula <- function(variables,degree){
 #' @param x passed from predict_from_models
 #' @noRd
 #' @importFrom xgboost xgb.model.parameters<-
+#' @importFrom utils packageVersion
 predict_wrapper <- function(x){
     if(is(x, "lm")){
         xp <- as.data.frame(xp)
@@ -135,7 +136,11 @@ predict_wrapper <- function(x){
     }
     if(is(x, "xgb.Booster")){
         requireNamespace("xgboost")
+        if(utils::packageVersion("xgboost") < "3.0.0"){
+            x = getExportedValue("xgboost", "xgb.Booster.complete")(x)
+        }
         xgb.model.parameters(x) <- list(nthread = 1)
+
     }
     if(is(x, "svm")){
         requireNamespace("e1071")
